@@ -1,15 +1,89 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>tiBcoin</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--o:#F4721A;--bg:#14110f;--c:#211c18;--t:#f5efe9;--m:#a99d92}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui;padding:16px 16px 90px}
+.card{background:var(--c);border-radius:16px;padding:16px;margin-bottom:12px}
+h2{margin:0 0 10px}.m{color:var(--m)}.big{font-size:32px;font-weight:700;color:var(--o)}
+button{background:var(--o);color:#fff;border:0;border-radius:12px;padding:12px;font-weight:600;width:100%;margin-top:8px}
+button.s{background:#3a312a}input{width:100%;padding:12px;border-radius:10px;border:1px solid #3a312a;background:#14110f;color:var(--t);margin-top:6px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1b1612;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+nav a{flex:1;text-align:center;font-size:12px;color:var(--m);padding:6px}nav a.on{color:var(--o)}
+.pie{width:200px;height:200px;border-radius:50%;margin:10px auto;position:relative;background:conic-gradient(#F4721A 0 60%,#ffa05a 60% 75%,#c4510a 75% 85%,#ffc999 85% 92%,#8a3a08 92% 97%,#555 97% 100%)}
+.pie img{position:absolute;inset:60px;width:80px;height:80px;border-radius:50%}
+table{width:100%;border-collapse:collapse}td{padding:8px 0;border-bottom:1px solid #2e2620}td:last-child{text-align:right}
+.tab{display:none}.tab.on{display:block}
+</style></head><body>
+<div id="home" class="tab on">
+ <div class="card" style="text-align:center"><img src="logo.jpg" width="80" style="border-radius:50%"><h2>tiBcoin ($TBC)</h2>
+ <p class="m">Token komunitas yang ditambang langsung dari Telegram. Tambang, stake, ajak teman, dan kembangkan saldo $TBC kamu.</p></div>
+ <div class="card"><table><tr><td>Nama Token</td><td>tiBcoin</td></tr><tr><td>Ticker</td><td>$TBC</td></tr><tr><td>Suplai</td><td>21.000.000.000</td></tr></table></div>
+ <div class="card"><h2>Alokasi</h2><div class="pie"><img src="logo.jpg"></div>
+ <table><tr><td>Community</td><td>60%</td></tr><tr><td>Likuiditas</td><td>15%</td></tr><tr><td>Tim & Dev</td><td>10%</td></tr><tr><td>Airdrop & Marketing</td><td>7%</td></tr><tr><td>Staking</td><td>5%</td></tr><tr><td>Reserve / Burn</td><td>3%</td></tr></table></div>
+</div>
 
-tiBcoin ($TBC)
-Token komunitas yang ditambang langsung dari Telegram. Tambang, stake, ajak teman, dan kembangkan saldo $TBC kamu.
+<div id="miner" class="tab">
+ <div class="card"><div class="m">Saldo bot</div><div class="big" id="bal">0</div>
+ <div class="m">Staked: <span id="stk">0</span> • Dompet: <span id="wbal">0</span></div></div>
+ <div class="card"><div class="m">Kecepatan mining</div><div class="big"><span id="rate">1</span>/jam</div>
+ <div class="m">Belum diklaim: <b id="pend">0</b> TBC</div>
+ <button id="claim" onclick="claim()">Klaim</button></div>
+ <div class="card m" id="vnote"></div>
+</div>
 
-Nama Token	tiBcoin
-Ticker	$TBC
-Suplai	21.000.000.000
-Alokasi
+<div id="stake" class="tab">
+ <div class="card"><h2>Staking</h2><p class="m">Min. 100 TBC • Min. 24 jam (bonus 1%, +1% tiap 24 jam) • Unstake sebelum 24 jam: penalti 10%.</p>
+ <input id="samt" type="number" placeholder="Jumlah (min 100)"><button onclick="stake()">Stake</button></div>
+ <div id="slist"></div>
+</div>
 
-Community	60%
-Likuiditas	15%
-Tim & Dev	10%
-Airdrop & Marketing	7%
-Staking	5%
-Reserve / Burn	3%
+<div id="ref" class="tab">
+ <div class="card"><h2>Referral</h2><p class="m">Bonus 21 TBC + 12% dari total mining teman. Teman valid jika sudah verifikasi dompet & menyelesaikan 1 sesi mining.</p>
+ <input id="rl" readonly><button onclick="copyRef()">Salin Link</button>
+ <p class="m">Teman valid: <b id="rc">0</b></p></div>
+</div>
+
+<div id="tasks" class="tab"><div class="card"><h2>Tugas</h2><p class="m">Segera hadir.</p></div></div>
+
+<div id="profil" class="tab">
+ <div class="card"><h2>Dompet</h2><p class="m" id="wst">Belum terhubung</p>
+ <button onclick="verifyWallet()">Hubungkan & Verifikasi (0.21 TON)</button>
+ <p class="m">Reward 2.100 TBC (wajib stake 24 jam sebelum penarikan).</p></div>
+ <div class="card"><h2>Beli Token</h2><p class="m">Bonus 2% dari total pembelian.</p><input type="number" placeholder="Jumlah TBC"><button onclick="alert('Hubungkan endpoint pembayaran TON')">Beli</button></div>
+ <div class="card"><h2>Tarik Token</h2><p class="m">Biaya 1%. Wajib sudah stake 24 jam.</p><input type="number" placeholder="Jumlah TBC"><button onclick="alert('Hubungkan endpoint penarikan')">Tarik</button></div>
+ <div class="card"><button class="s" onclick="Telegram.WebApp.openLink('https://tibcoin.example/whitepaper.pdf')">WhitePaper</button></div>
+ <div class="card"><h2>Riwayat</h2><div id="hist" class="m">Belum ada transaksi</div></div>
+</div>
+
+<nav id="nav"></nav>
+<script>
+const tg=Telegram.WebApp;tg.ready();tg.expand();
+const BOOST=0.001; // harus sama dengan server
+const tabs=[['home','🏠','Home'],['miner','⛏️','Miner'],['stake','🔒','Staking'],['ref','👥','Referral'],['tasks','✅','Tugas'],['profil','👤','Profil']];
+nav.innerHTML=tabs.map(t=>`<a data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}<br>${t[2]}</a>`).join('');
+function go(id){document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id==id));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.t==id))}go('home');
+// DEMO: state lokal. Produksi: ambil dari /api/me dengan initData
+let S=JSON.parse(localStorage.getItem('tbc')||'{"bal":0,"stk":0,"last":'+Date.now()+',"ok":false,"stakes":[],"hist":[]}');
+const save=()=>localStorage.setItem('tbc',JSON.stringify(S));
+const rate=()=>1+(S.bal+S.stk)*BOOST;
+function render(){bal.textContent=S.bal.toFixed(2);stk.textContent=S.stk.toFixed(2);rate_=rate();document.getElementById('rate').textContent=rate_.toFixed(3);
+ const h=Math.min((Date.now()-S.last)/36e5,24);pend.textContent=(h*rate_).toFixed(4);
+ vnote.textContent=S.ok?'Dompet terverifikasi ✅':'⚠️ Verifikasi dompet di Profil untuk mulai mining.';
+ slist.innerHTML=S.stakes.map((s,i)=>{const d=Math.floor((Date.now()-s.t)/864e5);return `<div class="card">${s.a} TBC • bonus ${d}%<button class="s" onclick="unstake(${i})">Unstake</button></div>`}).join('');
+ hist.innerHTML=S.hist.map(x=>`<div>${x}</div>`).join('')||'Belum ada transaksi';
+ const u=tg.initDataUnsafe?.user?.id||'ID';rl.value=`https://t.me/NAMA_BOT?start=${u}`}
+let rate_=1;
+function claim(){if(!S.ok)return alert('Verifikasi dompet dulu');const e=parseFloat(pend.textContent);
+ // TODO: tampilkan iklan (mis. Adsgram) lalu panggil POST /api/claim
+ S.bal+=e;S.last=Date.now();S.hist.unshift('Mining +'+e.toFixed(2));save();render()}
+function stake(){const a=+samt.value;if(a<100||a>S.bal)return alert('Minimal 100 & saldo cukup');
+ S.bal-=a;S.stk+=a;S.stakes.push({a,t:Date.now()});S.hist.unshift('Stake '+a);save();render()}
+function unstake(i){const s=S.stakes[i];const early=Date.now()-s.t<864e5;const d=Math.floor((Date.now()-s.t)/864e5);
+ const back=early?s.a*0.9:s.a*(1+d/100);S.stk-=s.a;S.bal+=back;S.stakes.splice(i,1);S.hist.unshift('Unstake '+back.toFixed(2));save();render()}
+function verifyWallet(){alert('Produksi: TON Connect + bayar 0.21 TON ke treasury, server cek transaksi, lalu reward 2100 TBC.\nDemo: dianggap terverifikasi.');
+ if(!S.ok){S.ok=true;S.bal+=2100;S.hist.unshift('Reward verifikasi +2100');wst.textContent='Terverifikasi';save();render()}}
+function copyRef(){navigator.clipboard.writeText(rl.value);tg.showAlert('Tersalin')}
+setInterval(render,1000);render();
+</script></body></html>
